@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信泰工艺PDM</title>
+<style>
+:root {
+  --bg: #000;
+  --surface: #1c1c1e;
+  --surface2: #2c2c2e;
+  --surface3: #3a3a3c;
+  --sep: rgba(84,84,88,0.6);
+  --sep2: rgba(84,84,88,0.3);
+  --fill: rgba(120,120,128,0.16);
+  --t1: rgba(255,255,255,0.92);
+  --t2: rgba(235,235,245,0.6);
+  --t3: rgba(235,235,245,0.3);
+  --t4: rgba(235,235,245,0.18);
+  --accent: #FF9F0A;
+  --accent2: rgba(255,159,10,0.15);
+  --blue: #0A84FF;
+  --green: #30D158;
+  --red: #FF453A;
+  --teal: #64D2FF;
+  --mono: 'SF Mono','Cascadia Code','Consolas','Menlo',monospace;
+  --sans: -apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;
+  --r: 12px;
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --blur: saturate(180%) blur(40px);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
+
+#header{
+  height:52px;background:rgba(28,28,30,0.72);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border-bottom:0.5px solid var(--sep);display:flex;align-items:center;padding:0 24px;gap:12px;z-index:100;
+}
+.logo{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.logo-d{width:22px;height:22px;background:var(--accent);border-radius:4px;transform:rotate(45deg);box-shadow:0 0 12px rgba(255,159,10,0.3)}
+.badge{font-size:11px;font-weight:500;color:var(--accent);background:var(--accent2);padding:3px 10px;border-radius:20px}
+.stats{margin-left:auto;display:flex;gap:20px;font-size:13px;color:var(--t2)}
+.stats b{color:var(--t1);font-weight:600}
+
+#main{display:flex;flex:1;overflow:hidden;position:relative}
+
+#sidebar{
+  width:260px;background:rgba(28,28,30,0.55);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border-right:0.5px solid var(--sep2);overflow-y:auto;padding:16px 12px;flex-shrink:0;z-index:50;
+}
+#sidebar::-webkit-scrollbar{width:0}
+.slabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--t3);padding:12px 8px 6px}
+.nav{
+  display:flex;align-items:center;padding:8px 12px;border-radius:8px;cursor:pointer;
+  font-size:14px;font-weight:450;color:var(--t2);gap:8px;transition:all 0.2s var(--ease);user-select:none;margin-bottom:1px;
+}
+.nav:hover{background:var(--fill);color:var(--t1)}
+.nav.on{background:var(--accent2);color:var(--accent)}
+.nav .cnt{margin-left:auto;font-size:12px;color:var(--t3);background:rgba(118,118,128,0.12);padding:2px 8px;border-radius:10px;font-variant-numeric:tabular-nums}
+.nav.on .cnt{background:rgba(255,159,10,0.25);color:var(--accent)}
+.nav.sub{padding-left:40px;font-size:13px}
+.gapbox{margin-top:20px;padding:14px;background:var(--fill);border-radius:var(--r);border:0.5px solid var(--sep2)}
+.gapbox h4{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:10px}
+.gaprow{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--t3)}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-r{background:var(--red)}.dot-o{background:var(--accent)}.dot-b{background:var(--blue)}.dot-g{background:var(--green)}
+
+#content{flex:1;display:flex;flex-direction:column;min-width:0}
+#toolbar{padding:12px 20px;display:flex;gap:8px;align-items:center;flex-shrink:0;border-bottom:0.5px solid var(--sep2);background:rgba(0,0,0,0.3)}
+#search{flex:1;max-width:320px;background:var(--fill);border:0.5px solid var(--sep);border-radius:8px;padding:8px 14px;color:var(--t1);font-size:14px;outline:none;font-family:var(--sans);transition:all 0.2s var(--ease)}
+#search:focus{border-color:var(--accent);background:rgba(118,118,128,0.12)}
+#search::placeholder{color:var(--t3)}
+.chip{
+  padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;
+  border:0.5px solid var(--sep);background:var(--fill);color:var(--t2);transition:all 0.2s var(--ease);white-space:nowrap;
+}
+.chip:hover{background:rgba(118,118,128,0.12);color:var(--t1)}
+.chip.on{background:var(--accent2);border-color:var(--accent);color:var(--accent)}
+#rcount{margin-left:auto;font-size:13px;color:var(--t3);font-variant-numeric:tabular-nums}
+
+#clist{flex:1;overflow-y:auto;padding:8px 20px}
+#clist::-webkit-scrollbar{width:4px}
+#clist::-webkit-scrollbar-thumb{background:var(--sep);border-radius:2px}
+
+.crow{
+  display:flex;align-items:center;padding:12px 16px;border-radius:var(--r);cursor:pointer;
+  gap:14px;transition:all 0.2s var(--ease);border:0.5px solid transparent;margin-bottom:2px;position:relative;
+}
+.crow:hover{background:var(--fill)}
+.crow.sel{background:rgba(118,118,128,0.12);border-color:var(--sep)}
+.crow .cid{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent);min-width:170px;letter-spacing:0.03em}
+.crow .cname{font-size:14px;font-weight:550;color:var(--t1);min-width:120px}
+.crow .tag{font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;background:var(--fill);color:var(--t2)}
+.crow .tag.fz{color:var(--teal)}.crow .tag.wb{color:var(--green)}
+.crow .dprev{flex:1;font-size:12px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.crow .pdot{width:6px;height:6px;border-radius:50%;background:var(--green);position:absolute;left:6px;top:50%;transform:translateY(-50%);box-shadow:0 0 6px rgba(48,209,88,0.4)}
+
+#detail{
+  width:440px;background:var(--surface);border-left:0.5px solid var(--sep);
+  overflow-y:auto;flex-shrink:0;transition:transform 0.35s var(--ease);
+}
+#detail::-webkit-scrollbar{width:4px}
+#detail::-webkit-scrollbar-thumb{background:var(--sep);border-radius:2px}
+.dempty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:14px}
+.dhead{padding:24px 20px 20px;border-bottom:0.5px solid var(--sep);background:rgba(0,0,0,0.2)}
+.dhead .cid2{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--accent);letter-spacing:0.04em;margin-bottom:6px}
+.dhead .nm2{font-size:26px;font-weight:700;letter-spacing:-0.02em;line-height:1.15}
+.dhead .meta{margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dbody{padding:20px}
+.fg{margin-bottom:24px}
+.fg h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.fg h4::after{content:'';flex:1;height:0.5px;background:var(--sep2)}
+.fr{display:flex;padding:6px 0;font-size:14px;align-items:baseline}
+.fl{color:var(--t2);min-width:100px;flex-shrink:0;font-weight:450;font-size:13px}
+.fv{color:var(--t1);font-weight:450;line-height:1.5}
+.fv.ok{background:var(--fill);padding:2px 8px;border-radius:4px;display:inline-block}
+.fv.no{color:var(--t4);font-style:italic}
+.defblk{background:rgba(0,0,0,0.3);padding:14px;border-radius:var(--r);border:0.5px solid var(--sep2)}
+.defblk h4{margin-bottom:8px}
+.deftxt{font-size:13px;color:var(--t2);line-height:1.8}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.crow{animation:fadeIn 0.3s var(--ease) both}
+
+@media(max-width:1100px){#detail{width:360px}}
+@media(max-width:860px){
+  #sidebar{display:none}
+  #detail{position:fixed;right:0;top:52px;bottom:0;z-index:150;width:100%;max-width:400px}
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo"><div class="logo-d"></div><span>信泰工艺PDM</span></div>
+  <div class="badge">v3 · 121 Craft IDs</div>
+  <div class="stats">
+    <div>全部 <b>121</b></div>
+    <div>飞织 <b>36</b></div>
+    <div>纬编 <b>85</b></div>
+    <div>已填 <b style="color:var(--green)">8</b></div>
+  </div>
+</div>
+
+<div id="main">
+  <aside id="sidebar">
+    <div class="slabel">分类浏览</div>
+    <div class="nav on" data-f="all">▦ 全部工艺<span class="cnt">121</span></div>
+    <div class="nav" data-f="FZ">◇ 飞织<span class="cnt">36</span></div>
+    <div class="nav sub" data-f="14H">14针 (H)<span class="cnt">18</span></div>
+    <div class="nav sub" data-f="18HJ">18针 (HJ)<span class="cnt">18</span></div>
+    <div class="nav" data-f="WB">◎ 纬编<span class="cnt">85</span></div>
+    <div class="nav sub" data-f="XY14">小圆机·14针<span class="cnt">24</span></div>
+    <div class="nav sub" data-f="DY">大圆机<span class="cnt">42</span></div>
+    <div class="nav sub" data-f="PT">普通机<span class="cnt">19</span></div>
+
+    <div class="gapbox">
+      <h4>还差什么？</h4>
+      <div class="gaprow"><span><span class="dot dot-r"></span>后处理工艺</span><span>0条</span></div>
+      <div class="gaprow"><span><span class="dot dot-o"></span>织造参数</span><span>113待补</span></div>
+      <div class="gaprow"><span><span class="dot dot-o"></span>适用品牌</span><span>113待补</span></div>
+      <div class="gaprow"><span><span class="dot dot-b"></span>品牌·形体库</span><span>规划中</span></div>
+      <div class="gaprow"><span><span class="dot dot-g"></span>已预填</span><span>8条</span></div>
+    </div>
+  </aside>
+
+  <div id="content">
+    <div id="toolbar">
+      <input type="text" id="search" placeholder="搜索工艺名称、编号、定义…">
+      <div class="chip on" data-f="all">全部</div>
+      <div class="chip" data-f="FZ">飞织</div>
+      <div class="chip" data-f="WB">纬编</div>
+      <div id="rcount">121 条</div>
+    </div>
+    <div id="clist"></div>
+  </div>
+
+  <div id="detail"><div class="dempty">← 选择工艺查看详情</div></div>
+</div>
+
+<script>
+const CRAFTS = [{"craft_id":"XT-FZ-14H-PW-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"平纹工艺","definition":"1、由单针床或多针床，密集成圈编织形成织物的工艺。","version":"01","status":"active","yarn_count":"150D/48F DTY + 75D/36F FDY","gsm_range":"280-350","width_cm":"140","material_comp":"Polyester 85% · Spandex 15%","stretch_rate":"经向15% · 纬向25%","upper_structure":"单层平纹","knit_pattern":"1×1 密集成圈","applicable_brands":"Nike, Adidas, Anta, Li-Ning","shoe_part":"Vamp, Quarter, Tongue","shoe_type":"Running, Training","features":"透气, 轻量, 高弹性","season":"SS26, FW26","created_at":"2024-03-15","images":"XT-FZ-14H-PW_sample_v1.jpg, XT-FZ-14H-PW_detail_v1.jpg","ppt_ref":"Nike_FW26_PPT_p42, Adidas_SS27_PPT_p18","ebook_ref":"飞织工艺手册_v3_p15","render_prompt":"Close-up of finely knitted flat weave textile, 14-gauge, polyester-spandex blend, athletic shoe upper application, even stitch density, matte finish texture, studio lighting, 4K product photography","post_crafts":"XT-PP-PR-DT-01 (数码热转印)","finishing_sample":"XT-FZ-14H-PW-01_DT_sample.jpg","print_detail":"数码热转印 · CMYK全彩 · 耐水洗4级","change_log":"V1: 初始工艺定义 · 2024-03","_prefilled":true},{"craft_id":"XT-FZ-14H-FZ-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"翻针工艺","definition":"1、由面翻面或底翻底组合，使面或底线圈重叠在一起或与移针组合使线圈重叠在旁边织针上\n而形成的半透或全透纹路。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-QH-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"嵌花工艺","definition":"1、两个区域或两个以上区域做成的拼接，其中有纱嘴没有相互交织。","version":"01","status":"active","yarn_count":"75D/72F DTY × 2色 + 150D/96F FDY","gsm_range":"320-420","width_cm":"135","material_comp":"Polyester 78% · Nylon 18% · Spandex 4%","stretch_rate":"经向12% · 纬向20%","upper_structure":"多色拼接双层","knit_pattern":"嵌花拼接 · 2-3色区域","applicable_brands":"Nike, New Balance, ASICS","shoe_part":"Vamp, Quarter","shoe_type":"Lifestyle, Running","features":"多色拼接, 立体层次, 时尚设计","season":"FW26, SS27","created_at":"2024-05-20","images":"XT-FZ-14H-QH_multicolor_v1.jpg","ppt_ref":"NB_SS27_PPT_p28","ebook_ref":"飞织工艺手册_v3_p18","render_prompt":"Multi-color intarsia knit textile for premium athletic footwear, two contrasting yarn colors seamlessly joined, clean color separation, 14-gauge precision, lifestyle sneaker application, product photography style","post_crafts":"XT-PP-EM-3D-01 (3D电绣)","finishing_sample":"XT-FZ-14H-QH-01_EM_sample.jpg","print_detail":"","change_log":"V1: 初始工艺定义 · 2024-05","_prefilled":true},{"craft_id":"XT-FZ-14H-GZ-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"隔针工艺","definition":"1、成圈织针与空针，以“织X针 隔 Y空针”（X、Y为正整数）的规律编织织物的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-DS-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"垫纱工艺","definition":"1、通过堆叠编织材料，使特定编织区域的厚度增加、形成高于周围织物的凸起效果的工艺。","version":"01","status":"active","yarn_count":"150D/48F DTY × 2 (base) + 300D/96F DTY (padding)","gsm_range":"380-520","width_cm":"140","material_comp":"Polyester 95% · Spandex 5%","stretch_rate":"经向8% · 纬向12%","upper_structure":"局部加厚双层","knit_pattern":"堆叠垫纱 · 局部凸起","applicable_brands":"Nike, Adidas, Under Armour, Anta","shoe_part":"Vamp, Heel counter, Toe cap","shoe_type":"Basketball, Soccer, Training","features":"局部防护, 立体塑形, 抗冲击, 支撑强化","season":"FW26","created_at":"2024-07-22","images":"XT-FZ-14H-DS_padded_v1.jpg, XT-FZ-14H-DS_profile_v1.jpg","ppt_ref":"Nike_Basketball_PPT_p38, UA_Training_PPT_p15","ebook_ref":"飞织工艺手册_v3_p22","render_prompt":"Engineered knit textile with raised padding zones, differential thickness for protective shoe upper areas, 14-gauge base with stacked yarn buildup, basketball shoe concept, side profile view, dramatic rim lighting, 4K","post_crafts":"XT-PP-HP-HF-01 (热压高频)","finishing_sample":"XT-FZ-14H-DS-01_HP_sample.jpg","print_detail":"","change_log":"V1: 初始工艺定义 · 2024-07","_prefilled":true},{"craft_id":"XT-FZ-14H-FX-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"飞线工艺","definition":"1、织物特定区域，编织材料通过编织区域时不做任何编织动作，在织物内部处于悬浮状态的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-FS-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"飞梭工艺","definition":"1、飞线工艺与翻针工艺同时结合冚毛的方式组合编织出具有梭织效果织物，形成飞梭效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-MJQ-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"毛巾圈工艺","definition":"1、将针床中平纹线圈，从对应织针上脱出形成毛圈的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-JB-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"渐变工艺","definition":"1、通过字码度目的数值大小调节，形成渐变效果。\n2、通过纱线条数的递增递减的编织方式，形成渐变效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-AT-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"凹凸工艺","definition":"1、面层多行数编织底层少行数的编织方式，形成凹凸效果。\n2、面层普通纱底层氨纶纱的编织方式，形成凹凸效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-TH-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"提花工艺","definition":"1、两个或两个以上颜色相互穿插交错编织形成的花纹。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-SMZ-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"三明治工艺","definition":"1、通过面层、中层、底层，三个层次编织纹理形成三明治效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-HS-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"幻色工艺","definition":"1、通过面层与两侧编织不同颜色，通过不同视觉角度形成幻色效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-YQ-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"移圈工艺","definition":"1、通过把部分织针翻针到同一针床或者另一针床的相邻针位上，形成花色织物或者改变组织结构的效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-DC-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"单层工艺","definition":"1、在一面针床上、密集成圈编织形成织物的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-HXB-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"横向编织工艺","definition":"1、通过从侧边开始编织纹理，形成横向编织的效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-25D-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"2.5D一体成型工艺","definition":"1、由多种针织工艺组合编织的，不包含鞋底的，全成型一体鞋面。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-14H-3DD-01","category":"飞织","category_code":"FZ","needle_or_machine":"14针(H)","machine_model":"","craft_name":"3D一体成型工艺","definition":"1、由多种针织工艺组合编织包含鞋底的，全成型一体鞋面。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-PW-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"平纹工艺","definition":"1、由单针床或多针床，密集成圈编织形成织物的工艺。","version":"01","status":"active","yarn_count":"100D/96F DTY + 50D/36F FDY","gsm_range":"220-280","width_cm":"140","material_comp":"Polyester 80% · Spandex 20%","stretch_rate":"经向20% · 纬向30%","upper_structure":"单层高密平纹","knit_pattern":"1×1 高密成圈 · 18针细密纹理","applicable_brands":"Nike, Adidas, Under Armour, Skechers","shoe_part":"Vamp, Quarter, Collar","shoe_type":"Running, Soccer, Training","features":"高密细纹, 超轻量, 极致弹性, 贴合包裹","season":"SS26, SS27","created_at":"2024-06-10","images":"XT-FZ-18HJ-PW_highdensity_v1.jpg","ppt_ref":"UA_FW26_PPT_p55, Skechers_SS27_PPT_p12","ebook_ref":"飞织工艺手册_v3_p32","render_prompt":"Ultra-fine 18-gauge flat knit textile for performance athletic shoe upper, dense even weave, thin lightweight breathable fabric, spandex stretch recovery, close-up macro photography, clean studio background","post_crafts":"XT-PP-HP-FH-01 (热压覆膜)","finishing_sample":"XT-FZ-18HJ-PW-01_HP_sample.jpg","print_detail":"","change_log":"V1: 初始工艺定义 · 2024-06","_prefilled":true},{"craft_id":"XT-FZ-18HJ-FZ-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"翻针工艺","definition":"1、由面翻面或底翻底组合，使面或底线圈重叠在一起或与移针组合使线圈重叠在旁边织针上\n而形成的半透或全透纹路。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-QH-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"嵌花工艺","definition":"1、两个区域或两个以上区域做成的拼接，其中有纱嘴没有相互交织。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-GZ-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"隔针工艺","definition":"1、成圈织针与空针，以“织X针 隔 Y空针”（X、Y为正整数）的规律编织织物的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-DS-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"垫纱工艺","definition":"1、通过堆叠编织材料，使特定编织区域的厚度增加、形成高于周围织物的凸起效果的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-FX-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"飞线工艺","definition":"1、织物特定区域，编织材料通过编织区域时不做任何编织动作，在织物内部处于悬浮状态的工艺。","version":"01","status":"active","yarn_count":"100D/96F DTY (base) + 30D Monofilament (floating)","gsm_range":"200-260","width_cm":"138","material_comp":"Polyester 75% · TPU Monofilament 25%","stretch_rate":"经向10% · 纬向15%","upper_structure":"悬浮纱线双层结构","knit_pattern":"飞线悬浮 · 局部镂空","applicable_brands":"Nike, Li-Ning, Xtep","shoe_part":"Vamp, Quarter","shoe_type":"Running, Basketball","features":"科技感, 悬浮视觉, 超轻, 透气窗","season":"SS26, SS27","created_at":"2024-08-05","images":"XT-FZ-18HJ-FX_floating_v1.jpg","ppt_ref":"Nike_Innovation_PPT_p12, Li-Ning_FW27_PPT_p30","ebook_ref":"飞织工艺手册_v3_p36","render_prompt":"Innovative floating yarn knit textile, transparent monofilament strands suspended above base knit layer, futuristic aesthetic, 18-gauge precision, running shoe upper concept, dramatic side lighting, 4K","post_crafts":"","finishing_sample":"","print_detail":"","change_log":"V1: 初始工艺定义 · 2024-08","_prefilled":true},{"craft_id":"XT-FZ-18HJ-FS-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"飞梭工艺","definition":"1、飞线工艺与翻针工艺同时结合冚毛的方式组合编织出具有梭织效果织物，形成飞梭效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-MJQ-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"毛巾圈工艺","definition":"1、将针床中平纹线圈，从对应织针上脱出形成毛圈的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-JB-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"渐变工艺","definition":"1、通过字码度目的数值大小调节，形成渐变效果。\n2、通过纱线条数的递增递减的编织方式，形成渐变效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-AT-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"凹凸工艺","definition":"1、面层多行数编织底层少行数的编织方式，形成凹凸效果。\n2、面层普通纱底层氨纶纱的编织方式，形成凹凸效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-TH-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"提花工艺","definition":"1、两个或两个以上颜色相互穿插交错编织形成的花纹。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-SMZ-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"三明治工艺","definition":"1、通过面层、中层、底层，三个层次编织纹理形成三明治效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-HS-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"幻色工艺","definition":"1、通过面层与两侧编织不同颜色，通过不同视觉角度形成幻色效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-YQ-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"移圈工艺","definition":"1、通过把部分织针翻针到同一针床或者另一针床的相邻针位上，形成花色织物或者改变组织结构的效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-DC-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"单层工艺","definition":"1、在一面针床上、密集成圈编织形成织物的工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-HXB-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"横向编织工艺","definition":"1、通过从侧边开始编织纹理，形成横向编织的效果。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-25D-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"2.5D一体成型工艺","definition":"1、由多种针织工艺组合编织的，不包含鞋底的，全成型一体鞋面。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-FZ-18HJ-3DD-01","category":"飞织","category_code":"FZ","needle_or_machine":"18针(HJ)","machine_model":"","craft_name":"3D一体成型工艺","definition":"1、由多种针织工艺组合编织包含鞋底的，全成型一体鞋面。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-PZT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"平织提花工艺","definition":"以2-3种颜色或多色混色纱线前后交错编织组成的花纹结构","version":"01","status":"active","yarn_count":"150D/48F DTY + 75D/36F FDY","gsm_range":"300-400","width_cm":"150","material_comp":"Polyester 90% · Spandex 10%","stretch_rate":"经向25% · 纬向35%","upper_structure":"提花双层结构","knit_pattern":"平织底+提花面 · 规则几何图案","applicable_brands":"Adidas, Puma, Anta","shoe_part":"Vamp, Quarter, Heel","shoe_type":"Lifestyle, Walking","features":"提花纹理, 几何图案, 高弹舒适","season":"FW26, SS27","created_at":"2024-04-18","images":"XT-WB-XY14-PZT_jacquard_v1.jpg","ppt_ref":"Adidas_Lifestyle_PPT_p22, Puma_SS27_PPT_p15","ebook_ref":"纬编工艺手册_v2_p12","render_prompt":"Circular knit jacquard textile with geometric pattern, flat base with raised textured design, 14-inch cylinder knit, athletic casual shoe upper, warm grey tone, product photography with soft shadows","post_crafts":"XT-PP-PR-SP-01 (丝网印花)","finishing_sample":"XT-WB-XY14-PZT-01_SP_sample.jpg","print_detail":"丝网印花 · 单色Logo · 耐水洗5级","change_log":"V1: 初始工艺定义 · 2024-04","_prefilled":true},{"craft_id":"XT-WB-XY14-JQB-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"集圈半透孔工艺","definition":"一种通过到另一边集圈产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-FZB-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"翻针半透孔工艺","definition":"一种通过单向翻针产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-FZQ-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"翻针全透孔工艺","definition":"一种通过双向翻针产生的圆形或三角形上下全透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-TTT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"凸条提花工艺","definition":"一种通过不同颜色长短凸条相互交错提花形成的工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-DZT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"吊针透孔工艺","definition":"一种通过单向翻针再加吊针产生的上下全透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-PXX-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"平收编提花工艺","definition":"一种通过变换密度和纱线做出不会脱散的罗纹底部光边工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-MZT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"毛织提花工艺","definition":"一中面层有毛巾绒感纹理的提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-BTG-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"不同高低厚薄编织工艺","definition":"通过吊针凸起和不同厚薄组合而成的不规则区域高低提花材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-WWW-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"纬编网状提花透气工艺","definition":"单层2色或三色通过底中面不同大小集圈相互重叠形成网状覆盖的一种轻薄提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-GZT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"隔针透气提花工艺","definition":"通过面层或底层隔针而后再隔针区域集圈编织或翻针形成的一种透气提花结构","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-JBH-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"局部厚薄弹性工艺","definition":"通过区域使用不同D数材质纱线或密度来织出上下不同疏密手感的一种换纱工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-MCF-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"面层浮线提花工艺","definition":"一种浮线浮与正面线圈层之上的结构工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-WXJ-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"纬编剪毛工艺","definition":"通过后整剪毛机器将编织完多余浮线剪掉的一种工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-WXF-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"纬编浮粘工艺","definition":"大底轻透夹杂中间局部立体密实提花形成一种类似粘贴在大底上的效果材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-QTT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"轻透提花工艺","definition":"采用纯单丝或大比例单丝和小部分复丝组合编织而成的一种轻透面料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-YRG-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"一种绒感颗粒透气工艺","definition":"采用单颗毛织和吊针全透孔工艺结合形成的一种提花面料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-XQT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"脱圈透气工艺","definition":"采用点状或局部脱圈来放大线圈指数形成一种假孔透气的工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-DCJ-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"底层集圈提花工艺","definition":"采用底层集圈与面层形成一种面层线圈之下有多种深浅颜色不一的提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-BTJ-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"不同角度变色工艺","definition":"通过凹凸部位不同角度不同颜色编织形成不同方向不同感光颜色的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-XXG-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"梭纺工艺","definition":"通过面层翻针将底层和中间层的长短浮线包裹形成的一种低延伸透气的梭纺提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-CZT-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"层织提花工艺","definition":"通过面层单丝可以看到底部层层集圈浮线空腔飞纱的一种面底同织提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-DBJ-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"底部渐变工艺","definition":"通过单丝面层或复丝前后挂针同时结合底部不同的颜色集圈编织飞纱顺序后再翻针形成底层区域纹理渐变的一种工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-XY14-TTG-01","category":"纬编","category_code":"WB","needle_or_machine":"小圆机","machine_model":"14针","craft_name":"凸条鼓波工艺","definition":"通过不同比例的单面和双面织造形成凹凸鼓波的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-DST-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"多色提花工艺","definition":"采用4-8个颜色纱线编织而成的一种提花工艺。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-YTX-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"一种弹性翻针凹凸提花工艺","definition":"采用氨纶混纱通过翻针变化织造出单层和双层相互组合的一种组织结构凹凸提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-TTG-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"凸条鼓波工艺","definition":"通过不同比例的单面和双面织造形成凹凸鼓波的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-DBS-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"底部锁紧提花工艺","definition":"一种通过面层低D数同时底部加纱线专走底降低材料延伸的提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-PZT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"平织提花工艺","definition":"以2-3种颜色或多色混色纱线前后交错编织组成的花纹结构","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-JQB-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"集圈半透孔工艺","definition":"一种通过到另一边集圈产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-FZB-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"翻针半透孔工艺","definition":"一种通过单向翻针产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-DZT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"吊针透孔工艺","definition":"一种通过单向翻针再加吊针产生的上下全透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-HFT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"绗缝填充提花工艺","definition":"采用面层编织底层提花加中间层喂入高D数蓬松纱线的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-WXD-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"纬编多色翻针透底提花工艺","definition":"通过4-7色编织结合局部区域翻针形成局部透底局部多色的一种凹凸工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY16-BTJ-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"16针","craft_name":"不同角度变色工艺","definition":"通过凹凸部位不同角度不同颜色编织形成不同方向不同感光颜色的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAH-YTX-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"AH18针","craft_name":"一种弹性翻针凹凸提花工艺","definition":"采用氨纶混纱通过翻针变化织造出单层和双层相互组合的一种组织结构凹凸提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAH-JQB-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"AH18针","craft_name":"集圈半透孔提花工艺","definition":"一种通过到另一边集圈产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAH-FZB-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"AH18针","craft_name":"翻针半透孔提花工艺","definition":"一种通过单向翻针产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAH-DZT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"AH18针","craft_name":"吊针透孔提花工艺","definition":"一种通过单向翻针再加吊针产生的上下全透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAH-HFT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"AH18针","craft_name":"绗缝填充提花工艺","definition":"采用面层编织底层提花加中间层喂入高D数蓬松纱线的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAH-PZT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"AH18针","craft_name":"平织提花工艺","definition":"以2-3种颜色或多色混色纱线前后交错编织组成的花纹结构","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-KXC-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"空气层三明治平织工艺","definition":"通过中间层纱线上下集圈连接并支撑起面层和底层结构的一种单色或双色三层提花空气层工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-SXX-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"三明治集圈半透孔提花工艺","definition":"一种在三明治结构上通过到另一边集圈产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-SXX-02","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"三明治翻针半透孔提花工艺","definition":"一种在三明治结构上一种通过单向翻针产生的点状或长条状半透孔提花工艺","version":"02","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-SXX-03","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"三明治翻针透气工艺","definition":"一种三明治结构通过底层点状翻针结合面层单丝形成的一种透气工艺","version":"03","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-WWS-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"纬编三明治不同层次视觉材料工艺","definition":"三明治材料中通过底层集圈/编织/浮线/飞纱/面层集圈/面层编织而形成的一种多层次视觉的结构工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-SXX-04","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"三明治全透孔工艺","definition":"三明治通过翻针和吊针实现上中下三层全透的一种工艺","version":"04","status":"active","yarn_count":"150D/96F DTY × 2 layers + 30D Monofilament spacer","gsm_range":"350-480","width_cm":"160","material_comp":"Polyester 88% · TPU Monofilament 12%","stretch_rate":"经向18% · 纬向22%","upper_structure":"三明治双层+间隔丝","knit_pattern":"全透孔 · 双面网眼 · 间隔丝连接","applicable_brands":"Nike, Adidas, ASICS, 361°","shoe_part":"Vamp, Quarter, Tongue","shoe_type":"Running, Trail, Training","features":"极致透气, 3D立体, 缓冲回弹, 吸湿速干","season":"SS26, SS27","created_at":"2024-02-28","images":"XT-WB-DYAS-SXX-04_3Dmesh_v1.jpg, XT-WB-DYAS-SXX-04_crosssection_v1.jpg","ppt_ref":"ASICS_SS27_PPT_p33, Nike_Trail_PPT_p8","ebook_ref":"纬编工艺手册_v2_p28","render_prompt":"3D spacer mesh knit textile, double-layer sandwich construction with connecting monofilament fibers, full ventilation holes visible, athletic running shoe upper, macro cross-section view, high-key studio lighting, 4K","post_crafts":"","finishing_sample":"","print_detail":"","change_log":"V1: 初始工艺定义 · 2024-02 · V2: 增加间隔丝密度参数 · 2024-09","_prefilled":true},{"craft_id":"XT-WB-DYAS-YBZ-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"一种不同层高空气层三明治凹凸工艺","definition":"通过三明治中间层的单丝上下集圈和单织底层来体现空气层不同高低凹凸的一种工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-YWW-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"一种纬编轻绒毛感工艺","definition":"通过上下穿纱法上下分织2根纱线其中单根纱线经过回缩线圈退回表层形成一层轻绒毛感的结构工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-YWJ-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"一种纬编局部平织加毛感提花工艺","definition":"通过面层平织和上下穿纱法工艺织出的毛感再结合底部纱线到面层提花组合形成的一种结构工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-YWK-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"一种纬编空气层三明治方格提花工艺","definition":"三明治空气层通过面底互换提花形成的一种面层方格提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-YWS-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"一种纬编三明治提花颜色渐变分化工艺","definition":"三明治材料通过面层不同颜色比例的纱线配比同时结合花型外沿点状区域密集分布实现的一种渐变分化工艺材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DYAS-DCJ-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"ASR18针","craft_name":"底层集圈隐形提花工艺","definition":"采用底层集圈与面层形成一种面层线圈之下不同颜色集圈的密集不一有多种深浅颜色不一的提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-LST-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"两色提花三明治工艺","definition":"两色编织纹路形成花纹","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-SXX-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"三明治两色浮线透视提花工艺","definition":"三明治材料面单丝底两色编织拉浮线形成的一种透视提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-SXX-02","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"三明治单丝织面半透孔提花工艺","definition":"通过中间层单丝提花织到面层形成半透孔的一种工艺","version":"02","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-PZT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"平织提花工艺","definition":"以2-3种颜色或多色混色纱线前后交错编织组成的花纹结构","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-JQB-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"集圈半透孔工艺","definition":"一种通过到另一边集圈产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-HFT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"绗缝填充提花工艺","definition":"采用面层编织底层提花加中间层喂入高D数蓬松纱线的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-KXC-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"空气层三明治平织工艺","definition":"通过中间层纱线上下集圈连接并支撑起面层和底层结构的一种单色或双色三层提花空气层工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-SXX-03","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"三明治斜纹半透孔提花工艺","definition":"痛过45度排版使面层线条和半透孔呈现斜纹的一种视觉材料工艺","version":"03","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-SXX-04","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"三明治单丝面面底分色提花染色工艺","definition":"通过上下穿纱法胚纱走涤/锦纱线形成一色集圈面层和两色织与底层而后再染色定型的一种三明治空气层材料，","version":"04","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY22-SXX-05","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"22针","craft_name":"三明治复丝面提花染色工艺","definition":"通过单色或混色胚纱织于面层而后再到染厂染色定型的一种三明治空气层提花材料","version":"05","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY24-JQB-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"24针","craft_name":"集圈半透孔提花工艺","definition":"一种通过到另一边集圈产生的点状或长条状半透孔提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY24-HFT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"24针","craft_name":"绗缝填充提花工艺","definition":"采用面层编织底层提花加中间层喂入高D数蓬松纱线的一种提花工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-DY24-PZT-01","category":"纬编","category_code":"WB","needle_or_machine":"大圆机","machine_model":"24针","craft_name":"平织提花工艺","definition":"以2-3种颜色或多色混色纱线前后交错编织组成的花纹结构","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-DMD-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"单面吊针集圈提花工艺","definition":"单层结构通过吊针集圈编织出一种单色或混色花型纹理的工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-DMT-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"单面凸条工艺","definition":"单层结构通过隔针吊针编织形成凸条鼓波的一种单色或混色工艺","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-SMT-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"双面提花工艺","definition":"双层结构通过拼纱或混纱织造形成的一种单色或混色工艺材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-DSC-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"单双层轻薄弹力平布","definition":"采用细纱和氨纶织造的一种轻薄带弹力的双层平织布","version":"01","status":"active","yarn_count":"100D/72F FDY + 40D Spandex","gsm_range":"180-240","width_cm":"155","material_comp":"Polyester 82% · Spandex 18%","stretch_rate":"经向30% · 纬向40%","upper_structure":"单双面轻薄弹力平布","knit_pattern":"单面成圈 · 平滑表面 · 轻薄弹性","applicable_brands":"Adidas, Skechers, Li-Ning, Xtep","shoe_part":"Lining, Quarter, Collar","shoe_type":"All-purpose, Lifestyle","features":"轻薄弹力, 平滑舒适, 内衬适用, 基础底布","season":"All-season","created_at":"2024-01-10","images":"XT-WB-PTA-DSC-01_base_v1.jpg","ppt_ref":"Skechers_Catalog_PPT_p45, Li-Ning_SS27_PPT_p8","ebook_ref":"纬编工艺手册_v2_p6","render_prompt":"Smooth single/double jersey knit fabric for athletic shoe lining, fine gauge circular knit, clean even surface, soft drape, elastic recovery, warm cream/beige tone, flat lay product photography","post_crafts":"","finishing_sample":"","print_detail":"","change_log":"V1: 初始工艺定义 · 2024-01","_prefilled":true},{"craft_id":"XT-WB-PTA-SMJ-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"双面集圈半透孔工艺","definition":"采用点状或长条状集圈形成的一种半透孔工艺材料。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-SMA-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"双面凹凸绗缝提花工艺。","definition":"采用中间填充或上下吊针形成的一种高低凹凸起伏材料。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-SMJ-02","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"双面几何图形提花工艺","definition":"采用吊针或不同纱线编织出面层呈现几何形状纹理的一种提花工艺","version":"02","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-QTP-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"轻透平织提花工艺","definition":"整个结构采用单丝织造形成一种轻薄透气的平织提花材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTA-SCX-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"A","craft_name":"双层竖条隔针提花工艺","definition":"面层采用不同竖条隔针方式集圈或编织而成的一种工艺材料。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAE-PTS-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AE","craft_name":"普通三明治工艺","definition":"三明治净色平纹中有单丝支撑空气层","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAE-PSS-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AE","craft_name":"拼纱三明治工艺","definition":"面层2色或三色拼纱织造成的三明治平纹中有单丝支撑空气层","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAE-QTS-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AE","craft_name":"轻透三明治提花工艺","definition":"采用上或下单丝做面同时中有单丝支撑的三明治空气层","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAE-QXK-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AE","craft_name":"全涤空气层连接工艺","definition":"面层底层和中间层都用复丝编织的空气层材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAE-SXX-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AE","craft_name":"三明治单丝提花透孔工艺","definition":"采用中间单丝织到面层形成透孔的一种三明治材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAE-SXX-02","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AE","craft_name":"三明治集圈吊针提花工艺","definition":"采用面层、底层集圈或吊针形成的半透孔和点状提花的一种三明治中有单丝支撑材料","version":"02","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAW-SCX-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AW","craft_name":"双层竖条隔针提花工艺","definition":"面层采用不同竖条隔针方式集圈或编织而成的一种工艺材料。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAW-SCJ-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AW","craft_name":"双层集圈平织提花工艺","definition":"面底平织同时中间部位集圈提花连接的一种工艺材料","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAW-DCJ-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AW","craft_name":"单层集圈平织提花工艺","definition":"单层结构采用集圈编织形成的一种反面带几何菱形纹理的单色或混色材料。","version":"01","status":"active","_prefilled":false},{"craft_id":"XT-WB-PTAW-DCQ-01","category":"纬编","category_code":"WB","needle_or_machine":"普通机","machine_model":"AW","craft_name":"单层轻透一体熔合工艺","definition":"采用TPU单层经过高温熔合形成一体轻透结构的工艺材料。","version":"01","status":"active","_prefilled":false}];
+
+// Jobs: Simplify 6 layers → 3 core layers. Delete the unnecessary.
+// L1=Identity, L2=Technical Specs (merged knit + post-process), L3=Application + Meta
+const FIELDS = {
+  L1: [
+    ['craft_id','工艺编号'],['craft_name','工艺名称'],['category','类别'],
+    ['needle_or_machine','针种/机型'],['machine_model','机型型号'],['status','状态']
+  ],
+  L2: [
+    ['yarn_count','纱线规格'],['gsm_range','克重 (g/m²)'],['width_cm','幅宽 (cm)'],
+    ['material_comp','材质成分'],['stretch_rate','延伸率'],['upper_structure','鞋面结构'],
+    ['knit_pattern','编织纹路'],['post_crafts','后处理工艺'],['print_detail','印花/处理详情']
+  ],
+  L3: [
+    ['applicable_brands','适用品牌'],['shoe_part','鞋面部位'],['shoe_type','鞋型'],
+    ['features','特性标签'],['season','适用季节'],['version','版本'],['created_at','创建时间'],
+    ['change_log','更新日志'],['images','样品图'],['ppt_ref','PPT引用'],['ebook_ref','电子册引用'],
+    ['render_prompt','AI生图Prompt']
+  ]
+};
+
+let activeFilter = 'all';
+let selCraft = null;
+
+function renderList() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let f = CRAFTS;
+  if (activeFilter === 'FZ') f = CRAFTS.filter(c => c.category_code === 'FZ');
+  else if (activeFilter === 'WB') f = CRAFTS.filter(c => c.category_code === 'WB');
+  else if (activeFilter === '14H') f = CRAFTS.filter(c => c.needle_or_machine && c.needle_or_machine.includes('14针') && c.category_code === 'FZ');
+  else if (activeFilter === '18HJ') f = CRAFTS.filter(c => c.needle_or_machine && c.needle_or_machine.includes('18针') && c.category_code === 'FZ');
+  else if (activeFilter === 'XY14') f = CRAFTS.filter(c => c.machine_model === '14针' && c.category_code === 'WB');
+  else if (activeFilter === 'DY') f = CRAFTS.filter(c => c.needle_or_machine === '大圆机');
+  else if (activeFilter === 'PT') f = CRAFTS.filter(c => c.needle_or_machine === '普通机');
+
+  if (q) {
+    f = f.filter(c =>
+      c.craft_id.toLowerCase().includes(q) ||
+      c.craft_name.includes(q) ||
+      (c.definition && c.definition.includes(q)) ||
+      (c.needle_or_machine && c.needle_or_machine.includes(q))
+    );
+  }
+
+  document.getElementById('rcount').textContent = f.length + ' 条';
+
+  const el = document.getElementById('clist');
+  el.innerHTML = f.map((c, i) => {
+    const isFZ = c.category_code === 'FZ';
+    const dp = c.definition && c.definition.length > 50 ? c.definition.substring(0,50)+'…' : (c.definition || '');
+    const sc = selCraft && selCraft.craft_id === c.craft_id ? ' sel' : '';
+    const pd = c._prefilled ? '<span class="pdot" title="已预填"></span>' : '';
+    return '<div class="crow'+sc+'" onclick="sel(\''+c.craft_id+'\')" data-id="'+c.craft_id+'" style="animation-delay:'+i*0.012+'s">'+
+      pd+'<span class="cid">'+c.craft_id+'</span><span class="cname">'+c.craft_name+'</span>'+
+      '<span class="tag '+(isFZ?'fz':'wb')+'">'+c.category+'</span><span class="dprev">'+dp+'</span></div>';
+  }).join('');
+}
+
+function sel(id) {
+  const c = CRAFTS.find(x => x.craft_id === id);
+  if (!c) return;
+  selCraft = c;
+  document.querySelectorAll('.crow').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
+  renderDetail(c);
+}
+
+function renderDetail(c) {
+  const p = document.getElementById('detail');
+  const isFZ = c.category_code === 'FZ';
+  const sub = isFZ ? c.needle_or_machine : c.needle_or_machine + (c.machine_model ? ' · ' + c.machine_model : '');
+
+  function rf(fields, title) {
+    let h = '<div class="fg"><h4>'+title+'</h4>';
+    for (const [key, label] of fields) {
+      let v = c[key] || '';
+      if (v && v.toString().trim()) {
+        if (key === 'status' && v === 'active') v = '● 活跃';
+        h += '<div class="fr"><span class="fl">'+label+'</span><span class="fv ok">'+v+'</span></div>';
+      } else {
+        h += '<div class="fr"><span class="fl">'+label+'</span><span class="fv no">— 待补充</span></div>';
+      }
+    }
+    h += '</div>';
+    return h;
+  }
+
+  p.innerHTML = '<div class="dhead"><div class="cid2">'+c.craft_id+'</div><div class="nm2">'+c.craft_name+'</div>'+
+    '<div class="meta"><span class="tag '+(isFZ?'fz':'wb')+'">'+c.category+'</span>'+
+    '<span style="font-size:13px;color:var(--t2)">'+sub+'</span>'+
+    '<span style="font-size:12px;color:var(--t3);margin-left:auto">v'+c.version+'</span>'+
+    (c._prefilled ? '<span style="font-size:11px;color:var(--green);background:rgba(48,209,88,0.1);padding:2px 8px;border-radius:10px">✓ 示例数据</span>' : '')+
+    '</div></div><div class="dbody">'+
+    rf(FIELDS.L1, 'L1 · 基础标识')+
+    rf(FIELDS.L2, 'L2 · 技术参数')+
+    rf(FIELDS.L3, 'L3 · 应用与资产')+
+    '<div class="defblk"><h4>📖 工艺定义</h4><div class="deftxt">'+(c.definition||'')+'</div></div></div>';
+}
+
+document.querySelectorAll('#sidebar .nav[data-f], .chip[data-f]').forEach(el => {
+  el.addEventListener('click', function() {
+    const f = this.dataset.f;
+    activeFilter = (f === 'all') ? 'all' : (activeFilter === f ? 'all' : f);
+    document.querySelectorAll('#sidebar .nav').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('#sidebar .nav[data-f="'+activeFilter+'"]').forEach(t => t.classList.add('on'));
+    if (activeFilter === 'all') document.querySelector('#sidebar .nav[data-f="all"]').classList.add('on');
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.f === activeFilter || (activeFilter === 'all' && c.dataset.f === 'all')));
+    renderList();
+  });
+});
+
+document.getElementById('search').addEventListener('input', renderList);
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    selCraft = null;
+    document.getElementById('detail').innerHTML = '<div class="dempty">← 选择工艺查看详情</div>';
+    renderList();
+  }
+});
+
+renderList();
+if (CRAFTS.length > 0) {
+  const first = CRAFTS.find(c => c._prefilled) || CRAFTS[0];
+  setTimeout(() => sel(first.craft_id), 150);
+}
+</script>
+</body>
+</html>
